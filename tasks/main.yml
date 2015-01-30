@@ -1,0 +1,65 @@
+###################
+# User Management
+###################
+- name: Add my public key to {{ user }}
+  authorized_key: user={{ user }}
+                  key="{{ lookup('file', '~/.ssh/id_rsa.pub') }}"
+
+###################
+# Host config
+###################
+- name: config hosts
+  lineinfile: dest=/etc/hosts line="{{ ansible_default_ipv4.address }} {{ fqdn }}  {{ hostname }}"
+
+- name: config hostname
+  hostname: name={{ hostname }}
+
+###################
+# Misc. tools
+###################
+- name: Install usefull system tools
+  apt: name={{ item }} state=present
+  with_items:
+   - nano
+   - vim
+   - htop
+   - ncdu
+   - bash-completion
+   - ntp
+   - wget
+   - snmpd
+   - rsync
+   - curl
+   - tree
+   - iftop
+   - nmap
+   - iputils-ping
+   - iputils-arping
+   - traceroute
+   - tcpdump
+   - cron
+   - syslog-ng
+   - mailutils
+   - ssmtp
+   - libxml-simple-perl
+   - libfile-slurp-perl
+   - libfilesys-diskspace-perl
+   - libdata-dumper-simple-perl
+   
+- name: Configure NTP
+  template: src=ntp.conf.j2 dest=/etc/ntp.conf
+  tags: ntp
+  notify: restart ntp
+   
+- name: config VIM
+  template: src=vimrc.j2 dest=~/.vimrc
+  tags: vim
+
+- name: config Nano
+  template: src=nanorc.j2 dest=~/.nanorc
+  tags: nano
+ 
+- name: config Ssmtp
+  template: src=ssmtp.conf.j2 dest=/etc/ssmtp/ssmtp.conf
+  tags: ssmtp  
+
